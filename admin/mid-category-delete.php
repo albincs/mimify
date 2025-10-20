@@ -1,109 +1,75 @@
 <?php require_once('header.php'); ?>
 
 <?php
-// Preventing the direct access of this page.
 if(!isset($_REQUEST['id'])) {
-	header('location: logout.php');
-	exit;
-} else {
-	// Check the id is valid or not
-	$statement = $pdo->prepare("SELECT * FROM tbl_mid_category WHERE mcat_id=?");
-	$statement->execute(array($_REQUEST['id']));
-	$total = $statement->rowCount();
-	if( $total == 0 ) {
-		header('location: logout.php');
-		exit;
-	}
+    // No ID provided, redirect safely
+    header('location: mid-category.php');
+    exit;
 }
-?>
 
-<?php
+// Check the id is valid
+$statement = $pdo->prepare("SELECT * FROM tbl_mid_category WHERE mcat_id=?");
+$statement->execute(array($_REQUEST['id']));
+if($statement->rowCount() == 0) {
+    header('location: mid-category.php');
+    exit;
+}
 
-	// Getting all ecat ids
-	$statement = $pdo->prepare("SELECT * FROM tbl_end_category WHERE mcat_id=?");
-	$statement->execute(array($_REQUEST['id']));
-	$total = $statement->rowCount();
-	$result = $statement->fetchAll(PDO::FETCH_ASSOC);							
-	foreach ($result as $row) {
-		$ecat_ids[] = $row['ecat_id'];
-	}
+// Fetch all end category IDs under this mid-category
+$statement = $pdo->prepare("SELECT ecat_id FROM tbl_end_category WHERE mcat_id=?");
+$statement->execute(array($_REQUEST['id']));
+$ecat_ids = $statement->fetchAll(PDO::FETCH_COLUMN);
 
-	if(isset($ecat_ids)) {
+if(!empty($ecat_ids)) {
+    foreach($ecat_ids as $ecat_id) {
+        // Delete all products under this end category
+        $statement = $pdo->prepare("SELECT p_id, p_featured_photo FROM tbl_product WHERE ecat_id=?");
+        $statement->execute(array($ecat_id));
+        $products = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-		for($i=0;$i<count($ecat_ids);$i++) {
-			$statement = $pdo->prepare("SELECT * FROM tbl_product WHERE ecat_id=?");
-			$statement->execute(array($ecat_ids[$i]));
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);							
-			foreach ($result as $row) {
-				$p_ids[] = $row['p_id'];
-			}
-		}
+        foreach($products as $product) {
+            $p_id = $product['p_id'];
+            $p_featured_photo = $product['p_featured_photo'];
 
-		for($i=0;$i<count($p_ids);$i++) {
+            // Delete photos
+            if(file_exists('../assets/uploads/'.$p_featured_photo)) {
+                unlink('../assets/uploads/'.$p_featured_photo);
+            }
 
-			// Getting photo ID to unlink from folder
-			$statement = $pdo->prepare("SELECT * FROM tbl_product WHERE p_id=?");
-			$statement->execute(array($p_ids[$i]));
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);							
-			foreach ($result as $row) {
-				$p_featured_photo = $row['p_featured_photo'];
-				unlink('../assets/uploads/'.$p_featured_photo);
-			}
+            $stmt_photos = $pdo->prepare("SELECT photo FROM tbl_product_photo WHERE p_id=?");
+            $stmt_photos->execute(array($p_id));
+            $photos = $stmt_photos->fetchAll(PDO::FETCH_COLUMN);
+            foreach($photos as $photo) {
+                if(file_exists('../assets/uploads/product_photos/'.$photo)) {
+                    unlink('../assets/uploads/product_photos/'.$photo);
+                }
+            }
 
-			// Getting other photo ID to unlink from folder
-			$statement = $pdo->prepare("SELECT * FROM tbl_product_photo WHERE p_id=?");
-			$statement->execute(array($p_ids[$i]));
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);							
-			foreach ($result as $row) {
-				$photo = $row['photo'];
-				unlink('../assets/uploads/product_photos/'.$photo);
-			}
+            // Delete product-related data
+            $pdo->prepare("DELETE FROM tbl_product WHERE p_id=?")->execute(array($p_id));
+            $pdo->prepare("DELETE FROM tbl_product_photo WHERE p_id=?")->execute(array($p_id));
+            $pdo->prepare("DELETE FROM tbl_product_size WHERE p_id=?")->execute(array($p_id));
+            $pdo->prepare("DELETE FROM tbl_product_color WHERE p_id=?")->execute(array($p_id));
+            $pdo->prepare("DELETE FROM tbl_rating WHERE p_id=?")->execute(array($p_id));
 
-			// Delete from tbl_photo
-			$statement = $pdo->prepare("DELETE FROM tbl_product WHERE p_id=?");
-			$statement->execute(array($p_ids[$i]));
+            // Delete payments and orders
+            $stmt_orders = $pdo->prepare("SELECT payment_id FROM tbl_order WHERE product_id=?");
+            $stmt_orders->execute(array($p_id));
+            $orders = $stmt_orders->fetchAll(PDO::FETCH_COLUMN);
+            foreach($orders as $payment_id) {
+                $pdo->prepare("DELETE FROM tbl_payment WHERE payment_id=?")->execute(array($payment_id));
+            }
+            $pdo->prepare("DELETE FROM tbl_order WHERE product_id=?")->execute(array($p_id));
+        }
 
-			// Delete from tbl_product_photo
-			$statement = $pdo->prepare("DELETE FROM tbl_product_photo WHERE p_id=?");
-			$statement->execute(array($p_ids[$i]));
+        // Delete end category
+        $pdo->prepare("DELETE FROM tbl_end_category WHERE ecat_id=?")->execute(array($ecat_id));
+    }
+}
 
-			// Delete from tbl_product_size
-			$statement = $pdo->prepare("DELETE FROM tbl_product_size WHERE p_id=?");
-			$statement->execute(array($p_ids[$i]));
+// Delete mid category
+$pdo->prepare("DELETE FROM tbl_mid_category WHERE mcat_id=?")->execute(array($_REQUEST['id']));
 
-			// Delete from tbl_product_color
-			$statement = $pdo->prepare("DELETE FROM tbl_product_color WHERE p_id=?");
-			$statement->execute(array($p_ids[$i]));
-
-			// Delete from tbl_rating
-			$statement = $pdo->prepare("DELETE FROM tbl_rating WHERE p_id=?");
-			$statement->execute(array($p_ids[$i]));
-
-			// Delete from tbl_payment
-			$statement = $pdo->prepare("SELECT * FROM tbl_order WHERE product_id=?");
-			$statement->execute(array($p_ids[$i]));
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);							
-			foreach ($result as $row) {
-				$statement1 = $pdo->prepare("DELETE FROM tbl_payment WHERE payment_id=?");
-				$statement1->execute(array($row['payment_id']));
-			}
-
-			// Delete from tbl_order
-			$statement = $pdo->prepare("DELETE FROM tbl_order WHERE product_id=?");
-			$statement->execute(array($p_ids[$i]));
-		}
-
-		// Delete from tbl_end_category
-		for($i=0;$i<count($ecat_ids);$i++) {
-			$statement = $pdo->prepare("DELETE FROM tbl_end_category WHERE ecat_id=?");
-			$statement->execute(array($ecat_ids[$i]));
-		}
-
-	}
-
-	// Delete from tbl_mid_category
-	$statement = $pdo->prepare("DELETE FROM tbl_mid_category WHERE mcat_id=?");
-	$statement->execute(array($_REQUEST['id']));
-
-	header('location: mid-category.php');
+header('location: mid-category.php');
+exit;
 ?>

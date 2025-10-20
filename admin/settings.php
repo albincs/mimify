@@ -735,12 +735,72 @@ if(isset($_POST['form7_10'])) {
 }
 
 if(isset($_POST['form9'])) {
-    // updating the database
-    $statement = $pdo->prepare("UPDATE tbl_settings SET paypal_email=?, bank_detail=? WHERE id=1");
-    $statement->execute(array($_POST['paypal_email'],$_POST['bank_detail']));
+    $valid = 1;
+    $error_message = '';
+    $success_message = '';
 
-    $success_message = 'Payment Settings is updated successfully.';
+    $paypal_email_new = trim($_POST['paypal_email']);
+    $bank_detail_new  = trim($_POST['bank_detail']);
+
+    // Fetch existing QR code
+    $statement = $pdo->prepare("SELECT p_qr_photo FROM tbl_settings WHERE id=1");
+    $statement->execute();
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+    $existing_qr = $row['p_qr_photo'];
+
+    // Check if user uploaded a new QR code
+    if(isset($_FILES['p_qr_photo']) && $_FILES['p_qr_photo']['name'] != '') {
+        $path     = $_FILES['p_qr_photo']['name'];
+        $path_tmp = $_FILES['p_qr_photo']['tmp_name'];
+        $ext      = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        // Validate file type
+        if(!in_array($ext, ['jpg','jpeg','png','gif'])) {
+            $valid = 0;
+            $error_message .= 'You must upload jpg, jpeg, png, or gif file<br>';
+        }
+
+        // Prepare new filename
+        $final_name = 'qr_photo_'.time().'.'.$ext;
+
+    } else {
+        // Keep existing file
+        $final_name = $existing_qr;
+        if(empty($existing_qr)) {
+            $valid = 0;
+            $error_message .= 'You must select a QR code photo<br>';
+        }
+    }
+
+    if($valid) {
+        // Upload new QR code if present
+        if(isset($path_tmp) && !empty($path_tmp)) {
+            // Delete old file
+            if(!empty($existing_qr) && file_exists('../assets/uploads/'.$existing_qr)) {
+                unlink('../assets/uploads/'.$existing_qr);
+            }
+
+            $destination = '../assets/uploads/'.$final_name;
+            if(!move_uploaded_file($path_tmp, $destination)) {
+                $error_message .= 'Failed to upload QR code file. Check folder permissions.<br>';
+            }
+        }
+
+        // Update database
+        $statement = $pdo->prepare("UPDATE tbl_settings SET paypal_email=?, bank_detail=?, p_qr_photo=? WHERE id=1");
+        $statement->execute([$paypal_email_new, $bank_detail_new, $final_name]);
+
+        $success_message = 'Payment settings updated successfully.';
+
+        // Refresh current values
+        $paypal_email = $paypal_email_new;
+        $bank_detail  = $bank_detail_new;
+        $p_qr_photo   = $final_name;
+    }
 }
+
+
+
 
 if(isset($_POST['form10'])) {
     // updating the database
@@ -837,6 +897,7 @@ foreach ($result as $row) {
    // $blog_subtitle                   = $row['blog_subtitle'];
     $newsletter_text                 = $row['newsletter_text'];
     $paypal_email                    = $row['paypal_email'];
+    $p_qr_photo                    = $row['p_qr_photo'];
   //  $stripe_public_key               = $row['stripe_public_key'];
  //   $stripe_secret_key               = $row['stripe_secret_key'];
     $bank_detail                     = $row['bank_detail'];
@@ -1633,44 +1694,53 @@ foreach ($result as $row) {
 
 
 
-                        <div class="tab-pane" id="tab_9">
-                            <form class="form-horizontal" action="" method="post">
-                                <div class="box box-info">
-                                    <div class="box-body">
-                                        <div class="form-group">
-                                            <label for="" class="col-sm-2 control-label">PayPal - Business Email </label>
-                                            <div class="col-sm-5">
-                                                <input type="text" name="paypal_email" class="form-control" value="<?php echo $paypal_email; ?>">
+                       <div class="tab-pane" id="tab_9">
+                                <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                                    <div class="box box-info">
+                                        <div class="box-body">
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">PayPal - Business Email </label>
+                                                <div class="col-sm-5">
+                                                    <input type="text" name="paypal_email" class="form-control" value="<?php echo htmlspecialchars($paypal_email); ?>">
+                                                </div>
                                             </div>
-                                        </div>
-                                      <!-- <div class="form-group">
-                                            <label for="" class="col-sm-2 control-label">Stripe - Public Key </label>
-                                            <div class="col-sm-5">
-                                                <input type="text" name="stripe_public_key" class="form-control" value="<?php echo $stripe_public_key; ?>">
+
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">Bank Information </label>
+                                                <div class="col-sm-5">
+                                                    <textarea name="bank_detail" class="form-control" cols="30" rows="10"><?php echo htmlspecialchars($bank_detail); ?></textarea>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="" class="col-sm-2 control-label">Stripe - Secret Key </label>
-                                            <div class="col-sm-5">
-                                                <input type="text" name="stripe_secret_key" class="form-control" value="<?php echo $stripe_secret_key; ?>">
+
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">Existing QR Code</label>
+                                                <div class="col-sm-6" style="padding-top:6px;">
+                                                    <?php if(!empty($p_qr_photo) && file_exists('../assets/uploads/'.$p_qr_photo)): ?>
+                                                        <img src="../assets/uploads/<?php echo $p_qr_photo; ?>" class="existing-photo" style="height:80px;">
+                                                    <?php else: ?>
+                                                        <span>No QR code uploaded yet.</span>
+                                                    <?php endif; ?>
+                                                </div>
                                             </div>
-                                        </div> -->
-                                        <div class="form-group">
-                                            <label for="" class="col-sm-2 control-label">Bank Information </label>
-                                            <div class="col-sm-5">
-                                                <textarea name="bank_detail" class="form-control" cols="30" rows="10"><?php echo $bank_detail; ?></textarea>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">New QR Code</label>
+                                                <div class="col-sm-6" style="padding-top:6px;">
+                                                    <input type="file" name="p_qr_photo">
+                                                    <p class="help-block">Upload jpg, jpeg, png, or gif file. Leave blank to keep existing QR code.</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="" class="col-sm-2 control-label"></label>
-                                            <div class="col-sm-6">
-                                                <button type="submit" class="btn btn-success pull-left" name="form9">Update</button>
+
+                                            <div class="form-group">
+                                                <div class="col-sm-offset-2 col-sm-6">
+                                                    <button type="submit" class="btn btn-success" name="form9">Update</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
-                        </div>
+                                </form>
+                            </div>
+
 
 
                         <div class="tab-pane" id="tab_10">
