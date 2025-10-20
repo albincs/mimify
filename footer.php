@@ -249,7 +249,40 @@ $(document).ready(function() {
                 }
             });
         } else {
-            $('#cust_b_city').html('<option value="">Select City</option>');
+            $('#cust_b_city').html('<option value="">Select City/District</option>');
+        }
+    }
+});
+</script>
+<script>
+$(document).ready(function() {
+    // On page load, if state is already selected, load cities
+    var selectedState1 = $('#cust_s_state').val();
+    var selectedCity1 = "<?php echo $_SESSION['customer']['cust_s_city']; ?>";
+    if(selectedState1) {
+        loadCities1(selectedState1, selectedCity1);
+    }
+
+ $('#cust_s_state').on('change', function() {
+		debugger;
+        var state_id1 = $(this).val();
+        loadCities1(state_id1, null);
+    });
+    function loadCities1(state_id1, selectedCity1) {
+        if(state_id1) {
+            $.ajax({
+                url: 'fetch_cities.php',
+                type: 'POST',
+                data: {state_id: state_id1},
+                success: function(response) {
+                    $('#cust_s_city').html(response);
+                    if(selectedCity1) {
+                        $('#cust_s_city').val(selectedCity1);
+                    }
+                }
+            });
+        } else {
+            $('#cust_s_city').html('<option value="">Select City/District</option>');
         }
     }
 });

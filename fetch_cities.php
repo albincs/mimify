@@ -15,7 +15,7 @@ if(isset($_POST['state_id'])) {
     $stmt->execute([$state_id]);
     $districts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo '<option value="">Select City</option>';
+    echo '<option value="">Select City/District</option>';
     foreach($districts as $district) {
         echo "<option value='{$district['district_id']}'>{$district['district_name']}</option>";
     }

@@ -206,23 +206,23 @@ if (isset($_POST['form1'])) {
                                 </div>
                                 <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_108; ?></label>
-                                    <select name="cust_b_state" id="cust_b_state" class="form-control">
+                                    <select name="cust_s_state" id="cust_s_state" class="form-control">
                                         <option value="">Select State</option>
                                         <?php
                                         $statement = $pdo->prepare("SELECT * FROM tbl_states ORDER BY state_name ASC");
                                         $statement->execute();
                                         $states = $statement->fetchAll(PDO::FETCH_ASSOC);
                                         foreach ($states as $state) {
-                                            $selected = ($state['state_id'] == $_SESSION['customer']['cust_b_state']) ? 'selected' : '';
+                                            $selected = ($state['state_id'] == $_SESSION['customer']['cust_s_state']) ? 'selected' : '';
                                             echo "<option value='{$state['state_id']}' $selected>{$state['state_name']}</option>";
                                         }
                                         ?>
                                     </select>
-                                </div>
+                                </div>   
                                 
                                 <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_107; ?></label>
-                                    <select name="cust_b_city" id="cust_b_city" class="form-control">
+                                    <select name="cust_s_city" id="cust_s_city" class="form-control">
                                         <option value="">Select City/District</option>
                                         <!-- Cities will be loaded via AJAX -->
                                     </select>
