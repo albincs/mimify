@@ -284,7 +284,7 @@ if(!isset($_SESSION['cart_p_id'])) {
                                     <td>
                                         <?php
                                         $statement = $pdo->prepare("SELECT * FROM tbl_states WHERE state_id=?");
-                                        $statement->execute(array($_SESSION['customer']['cust_b_state']));
+                                        $statement->execute(array($_SESSION['customer']['cust_s_state']));
                                         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
                                         foreach ($result as $row) {
                                             echo $row['state_name'];
@@ -297,7 +297,7 @@ if(!isset($_SESSION['cart_p_id'])) {
                                     <td>
                                         <?php
                                         $statement = $pdo->prepare("SELECT * FROM tbl_districts WHERE district_id=?");
-                                        $statement->execute(array($_SESSION['customer']['cust_b_city']));
+                                        $statement->execute(array($_SESSION['customer']['cust_s_city']));
                                         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
                                         foreach ($result as $row) {
                                             echo $row['district_name'];
