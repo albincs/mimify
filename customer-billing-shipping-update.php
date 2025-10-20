@@ -136,13 +136,36 @@ if (isset($_POST['form1'])) {
                                     <textarea name="cust_b_address" class="form-control" cols="30" rows="10" style="height:100px;"><?php echo $_SESSION['customer']['cust_b_address']; ?></textarea>
                                 </div>
                                 <div class="form-group">
+                                    <label for=""><?php echo LANG_VALUE_108; ?></label>
+                                    <select name="cust_b_state" id="cust_b_state" class="form-control">
+                                        <option value="">Select State</option>
+                                        <?php
+                                        $statement = $pdo->prepare("SELECT * FROM tbl_states ORDER BY state_name ASC");
+                                        $statement->execute();
+                                        $states = $statement->fetchAll(PDO::FETCH_ASSOC);
+                                        foreach ($states as $state) {
+                                            $selected = ($state['state_id'] == $_SESSION['customer']['cust_b_state']) ? 'selected' : '';
+                                            echo "<option value='{$state['state_id']}' $selected>{$state['state_name']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for=""><?php echo LANG_VALUE_107; ?></label>
+                                    <select name="cust_b_city" id="cust_b_city" class="form-control">
+                                        <option value="">Select City/District</option>
+                                        <!-- Cities will be loaded via AJAX -->
+                                    </select>
+                                </div>
+                                <!-- <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_107; ?></label>
                                     <input type="text" class="form-control" name="cust_b_city" value="<?php echo $_SESSION['customer']['cust_b_city']; ?>">
-                                </div>
-                                <div class="form-group">
+                                </div> -->
+                                <!-- <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_108; ?></label>
                                     <input type="text" class="form-control" name="cust_b_state" value="<?php echo $_SESSION['customer']['cust_b_state']; ?>">
-                                </div>
+                                </div> -->
                                 <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_109; ?></label>
                                     <input type="text" class="form-control" name="cust_b_zip" value="<?php echo $_SESSION['customer']['cust_b_zip']; ?>">
@@ -182,13 +205,36 @@ if (isset($_POST['form1'])) {
                                     <textarea name="cust_s_address" class="form-control" cols="30" rows="10" style="height:100px;"><?php echo $_SESSION['customer']['cust_s_address']; ?></textarea>
                                 </div>
                                 <div class="form-group">
+                                    <label for=""><?php echo LANG_VALUE_108; ?></label>
+                                    <select name="cust_b_state" id="cust_b_state" class="form-control">
+                                        <option value="">Select State</option>
+                                        <?php
+                                        $statement = $pdo->prepare("SELECT * FROM tbl_states ORDER BY state_name ASC");
+                                        $statement->execute();
+                                        $states = $statement->fetchAll(PDO::FETCH_ASSOC);
+                                        foreach ($states as $state) {
+                                            $selected = ($state['state_id'] == $_SESSION['customer']['cust_b_state']) ? 'selected' : '';
+                                            echo "<option value='{$state['state_id']}' $selected>{$state['state_name']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for=""><?php echo LANG_VALUE_107; ?></label>
+                                    <select name="cust_b_city" id="cust_b_city" class="form-control">
+                                        <option value="">Select City/District</option>
+                                        <!-- Cities will be loaded via AJAX -->
+                                    </select>
+                                </div>
+                                <!-- <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_107; ?></label>
                                     <input type="text" class="form-control" name="cust_s_city" value="<?php echo $_SESSION['customer']['cust_s_city']; ?>">
                                 </div>
                                 <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_108; ?></label>
                                     <input type="text" class="form-control" name="cust_s_state" value="<?php echo $_SESSION['customer']['cust_s_state']; ?>">
-                                </div>
+                                </div> -->
                                 <div class="form-group">
                                     <label for=""><?php echo LANG_VALUE_109; ?></label>
                                     <input type="text" class="form-control" name="cust_s_zip" value="<?php echo $_SESSION['customer']['cust_s_zip']; ?>">

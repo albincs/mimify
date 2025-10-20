@@ -220,6 +220,40 @@ foreach ($result as $row) {
         }
     }
 </script>
+<script>
+$(document).ready(function() {
+    // On page load, if state is already selected, load cities
+    var selectedState = $('#cust_b_state').val();
+    var selectedCity = "<?php echo $_SESSION['customer']['cust_b_city']; ?>";
+    if(selectedState) {
+        loadCities(selectedState, selectedCity);
+    }
+
+    $('#cust_b_state').on('change', function() {
+		debugger;
+        var state_id = $(this).val();
+        loadCities(state_id, null);
+    });
+
+    function loadCities(state_id, selectedCity) {
+        if(state_id) {
+            $.ajax({
+                url: 'fetch_cities.php',
+                type: 'POST',
+                data: {state_id: state_id},
+                success: function(response) {
+                    $('#cust_b_city').html(response);
+                    if(selectedCity) {
+                        $('#cust_b_city').val(selectedCity);
+                    }
+                }
+            });
+        } else {
+            $('#cust_b_city').html('<option value="">Select City</option>');
+        }
+    }
+});
+</script>
 <?php echo $before_body; ?>
 </body>
 </html>

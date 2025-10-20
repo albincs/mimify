@@ -209,13 +209,35 @@ if(!isset($_SESSION['cart_p_id'])) {
                                         <?php echo nl2br($_SESSION['customer']['cust_b_address']); ?>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><?php echo LANG_VALUE_107; ?></td>
-                                    <td><?php echo $_SESSION['customer']['cust_b_city']; ?></td>
-                                </tr>
-                                <tr>
+                                <!-- <tr>
                                     <td><?php echo LANG_VALUE_108; ?></td>
                                     <td><?php echo $_SESSION['customer']['cust_b_state']; ?></td>
+                                </tr> -->
+                                <tr>
+                                    <td><?php echo LANG_VALUE_108; ?></td>
+                                    <td>
+                                        <?php
+                                        $statement = $pdo->prepare("SELECT * FROM tbl_states WHERE state_id=?");
+                                        $statement->execute(array($_SESSION['customer']['cust_b_state']));
+                                        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                                        foreach ($result as $row) {
+                                            echo $row['state_name'];
+                                        }
+                                        ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><?php echo LANG_VALUE_107; ?></td>
+                                    <td>
+                                        <?php
+                                        $statement = $pdo->prepare("SELECT * FROM tbl_districts WHERE district_id=?");
+                                        $statement->execute(array($_SESSION['customer']['cust_b_city']));
+                                        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                                        foreach ($result as $row) {
+                                            echo $row['district_name'];
+                                        }
+                                        ?>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><?php echo LANG_VALUE_109; ?></td>
@@ -258,13 +280,39 @@ if(!isset($_SESSION['cart_p_id'])) {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><?php echo LANG_VALUE_107; ?></td>
-                                    <td><?php echo $_SESSION['customer']['cust_s_city']; ?></td>
+                                    <td><?php echo LANG_VALUE_108; ?></td>
+                                    <td>
+                                        <?php
+                                        $statement = $pdo->prepare("SELECT * FROM tbl_states WHERE state_id=?");
+                                        $statement->execute(array($_SESSION['customer']['cust_b_state']));
+                                        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                                        foreach ($result as $row) {
+                                            echo $row['state_name'];
+                                        }
+                                        ?>
+                                    </td>
                                 </tr>
                                 <tr>
+                                    <td><?php echo LANG_VALUE_107; ?></td>
+                                    <td>
+                                        <?php
+                                        $statement = $pdo->prepare("SELECT * FROM tbl_districts WHERE district_id=?");
+                                        $statement->execute(array($_SESSION['customer']['cust_b_city']));
+                                        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                                        foreach ($result as $row) {
+                                            echo $row['district_name'];
+                                        }
+                                        ?>
+                                    </td>
+                                </tr>
+                                <!-- <tr>
+                                    <td><?php echo LANG_VALUE_107; ?></td>
+                                    <td><?php echo $_SESSION['customer']['cust_s_city']; ?></td>
+                                </tr> -->
+                                <!-- <tr>
                                     <td><?php echo LANG_VALUE_108; ?></td>
                                     <td><?php echo $_SESSION['customer']['cust_s_state']; ?></td>
-                                </tr>
+                                </tr> -->
                                 <tr>
                                     <td><?php echo LANG_VALUE_109; ?></td>
                                     <td><?php echo $_SESSION['customer']['cust_s_zip']; ?></td>
@@ -324,7 +372,7 @@ if(!isset($_SESSION['cart_p_id'])) {
 	                                    <label for=""><?php echo LANG_VALUE_34; ?> *</label>
 	                                    <select name="payment_method" class="form-control select2" id="advFieldsStatus">
 	                                        <option value=""><?php echo LANG_VALUE_35; ?></option>
-	                                        <option value="PayPal"><?php echo LANG_VALUE_36; ?></option>
+	                                        <!-- <option value="PayPal"><?php echo LANG_VALUE_36; ?></option> -->
 	                                        <option value="Bank Deposit"><?php echo LANG_VALUE_38; ?></option>
 	                                    </select>
 	                                </div>

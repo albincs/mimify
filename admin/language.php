@@ -845,15 +845,15 @@ foreach ($result as $row) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="" class="col-sm-4 control-label">City <span>*</span></label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" name="lang_value[107]" value="<?php echo $lang_ids[107]; ?>">
-                    </div>
-                </div>
-                <div class="form-group">
                     <label for="" class="col-sm-4 control-label">State <span>*</span></label>
                     <div class="col-sm-6">
                         <input type="text" class="form-control" name="lang_value[108]" value="<?php echo $lang_ids[108]; ?>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-sm-4 control-label">City or District <span>*</span></label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="lang_value[107]" value="<?php echo $lang_ids[107]; ?>">
                     </div>
                 </div>
                 <div class="form-group">
