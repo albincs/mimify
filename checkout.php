@@ -406,7 +406,7 @@ if(!isset($_SESSION['cart_p_id'])) {
                                             ?>
                                         </div>
                                         <div class="form-group">
-                                            <label for="" class="col-sm-3 control-label">QR Code</label>
+                                            <label for="" class="col-sm-12 control-label">QR Code</label>
                                             <div class="col-sm-6" style="padding-top:6px;">
                                                 <img src="../assets/uploads/<?php echo $row['p_qr_photo'] ?>" class="existing-photo" style="height:80px;">
                                             </div>
