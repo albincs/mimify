@@ -405,6 +405,12 @@ if(!isset($_SESSION['cart_p_id'])) {
                                             }
                                             ?>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-3 control-label">QR Code</label>
+                                            <div class="col-sm-6" style="padding-top:6px;">
+                                                <img src="../assets/uploads/<?php echo $row['p_qr_photo'] ?>" class="existing-photo" style="height:80px;">
+                                            </div>
+                                        </div>
                                         <div class="col-md-12 form-group">
                                             <label for=""><?php echo LANG_VALUE_44; ?> <br><span style="font-size:12px;font-weight:normal;">(<?php echo LANG_VALUE_45; ?>)</span></label>
                                             <textarea name="transaction_info" class="form-control" cols="30" rows="10"></textarea>
